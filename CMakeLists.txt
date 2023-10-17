@@ -36,6 +36,15 @@ if(STRICT)
   endif()
 endif()
 
+option(WITH_EIGEN_PCL_OPTIMIZATION_FLAGS "IF TO USE THE SAME OPTIMIZATION FLAGS THAT PCL WAS COMPILED WITH FOR EIGEN TYPE-COMPATIBILITY" OFF)
+set(PCL_OPTIMIZATION_FLAGS)
+if (${WITH_EIGEN_PCL_OPTIMIZATION_FLAGS})
+    find_package(PCL REQUIRED COMPONENTS common)
+    get_target_property(OUTPUT pcl_common INTERFACE_COMPILE_OPTIONS)
+    set(PCL_OPTIMIZATION_FLAGS ${OUTPUT})
+    message(STATUS "PCL optimization flags = ${PCL_OPTIMIZATION_FLAGS}")
+endif ()
+
 option(BUILD_COVERAGE "Build with code coverage" OFF)
 if(BUILD_COVERAGE)
   add_compile_options(--coverage)
@@ -96,6 +105,7 @@ if(MSVC)
     NOMINMAX # avoid conflict with std::min
   )
 endif()
+target_compile_options(franka PUBLIC ${PCL_OPTIMIZATION_FLAGS})
 
 target_include_directories(franka PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
